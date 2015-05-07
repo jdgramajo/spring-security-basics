@@ -8,36 +8,34 @@ import org.springframework.security.core.context.SecurityContextHolder
 
 class ViewSecurity {
 
-	private static Map<Class<? extends View>, List<String>> views = [:]
+    private static Map<Class<? extends View>, List<String>> views = [:]
 
-	static add(Class<? extends View> view, List<String> roles) {
-		views.put(view, roles)
-	}
+    static add(Class<? extends View> view, List<String> roles) {
+        views.put(view, roles)
+    }
 
-	static boolean isViewAccessible(View view) {
+    static boolean isViewAccessible(View view) {
 
-		List<String> roles = views.get(view.class)
-		if(!roles) {
-			// If roles is null, then access is public (not secured)
-			return true
-		}
+        List<String> roles = views.get(view.class)
+        if (!roles) {
+            // if roles is null, the access is public (not secured)
+            return true
+        }
 
-		Authentication authentication = SecurityContextHolder.context.authentication
-		if(!authentication) {
-			throw new InternalAuthenticationServiceException('No authentication found in context.')
-		}
+        Authentication authentication = SecurityContextHolder.context.authentication
+        if (!authentication) {
+            throw new InternalAuthenticationServiceException('No authentication found in the context.')
+        }
 
-		List<GrantedAuthority> authorities = authentication.authorities
+        List<GrantedAuthority> authorities = authentication.authorities
 
-		roles.each {
-			boolean isRoleAssigned = it in authorities*.authority
-			if(isRoleAssigned) {
-				return
-			}
-		}
+        for (String role : roles) {
+            boolean isRoleAssigned = role in authorities*.authority
+            if (isRoleAssigned) {
+                return true
+            }
+        }
 
-		return false
-
-	}
-
+        return false
+    }
 }
