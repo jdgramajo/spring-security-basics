@@ -1,33 +1,31 @@
 package app
 
-import com.vaadin.ui.UI
-import com.vaadin.ui.VerticalLayout
+import app.security.SecuredViewChangeListener
+import app.security.ViewSecurity
+import app.view.login.LoginView
+import app.view.secured.UserDataView
+import com.vaadin.annotations.PreserveOnRefresh
+import com.vaadin.navigator.Navigator
 import com.vaadin.server.VaadinRequest
-import com.vaadin.ui.Label
-import com.vaadin.grails.Grails
+import com.vaadin.ui.UI
 
-/**
- *
- *
- * @author
- */
+@PreserveOnRefresh
 class MyUI extends UI {
 
     @Override
-    protected void init(VaadinRequest vaadinRequest) {
+    protected void init(VaadinRequest r) {
 
-		VerticalLayout layout = new VerticalLayout()
+        Navigator navigator = new Navigator(this, this)
 
-        String homeLabel = Grails.i18n("default.home.label")
-        Label label = new Label(homeLabel)
-        layout.addComponent(label)
+        SecuredViewChangeListener securedViewListener = new SecuredViewChangeListener()
+        navigator.addViewChangeListener(securedViewListener)
 
-        // example of how to get Grails service and call a method
-        // List<User> users = Grails.get(UserService).getListOfUsers()
-        //    for (User user : users) {
-        //    	layout.addComponent(new Label(user.name))
-        // }
+        navigator.addView(LoginView.VIEW_NAME, LoginView)
+        navigator.addView(UserDataView.VIEW_NAME, UserDataView)
 
-		setContent(layout)
+        ViewSecurity.add(LoginView, null)
+        ViewSecurity.add(UserDataView, ['ADMIN'])
+
+        navigator.navigateTo(LoginView.VIEW_NAME)
     }
 }

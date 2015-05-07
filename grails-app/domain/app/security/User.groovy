@@ -18,6 +18,11 @@ class User implements UserDetails {
     static constraints = {
     }
 
+    // This is to prevent the lazy initialization exception
+    static mapping = {
+        roles lazy: false
+    }
+
     @Override
     Collection<? extends GrantedAuthority> getAuthorities() {
         println roles
